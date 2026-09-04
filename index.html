@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>El Universo de Jennifer</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: radial-gradient(circle at center, #0b0d17 0%, #000000 100%);
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            font-family: 'Space Grotesk', sans-serif;
+            color: white;
+            cursor: crosshair;
+        }
+
+        #starfield {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* Estrellas fugaces */
+        .shooting-star {
+            position: absolute;
+            width: 120px;
+            height: 2px;
+            background: linear-gradient(90deg, rgba(255,255,255,1), rgba(255,255,255,0));
+            animation: shoot 1.5s linear forwards;
+            opacity: 0;
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        @keyframes shoot {
+            0% { transform: translateX(0) translateY(0) rotate(-45deg); opacity: 1; }
+            100% { transform: translateX(-800px) translateY(800px) rotate(-45deg); opacity: 0; }
+        }
+
+        .cursor-trail {
+            position: absolute;
+            width: 8px; height: 8px;
+            background: #fff;
+            border-radius: 50%;
+            pointer-events: none;
+            box-shadow: 0 0 10px #fbc2eb, 0 0 20px #a18cd1;
+            animation: fadeOut 1s forwards;
+            z-index: 100;
+        }
+
+        @keyframes fadeOut {
+            0% { opacity: 1; transform: scale(1); }
+            100% { opacity: 0; transform: scale(0.1); }
+        }
+
+        /* Universo central */
+        .universe {
+            position: absolute;
+            top: 50%; left: 50%;
+            width: 0; height: 0;
+            z-index: 10;
+        }
+
+        .universe.paused *, 
+        .universe.paused {
+            animation-play-state: paused !important;
+        }
+
+        /* El Sol / Jennifer */
+        .sun {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 130px; height: 130px;
+            background: radial-gradient(circle, #ffecd2 0%, #fcb69f 100%);
+            border-radius: 50%;
+            box-shadow: 0 0 50px #fcb69f, 0 0 90px rgba(252, 182, 159, 0.5);
+            animation: pulse 4s ease-in-out infinite;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: #4a192c;
+            text-shadow: 0px 0px 5px rgba(255,255,255,0.5);
+            z-index: 20;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -50%) scale(1.05); box-shadow: 0 0 70px #fcb69f, 0 0 110px rgba(252, 182, 159, 0.7); }
+        }
+
+        /* Órbitas centradas perfectamente */
+        .orbit {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            border: 1px dashed rgba(255, 255, 255, 0.12);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        /* Contenedor de rotación */
+        .planet-container {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            animation: rotate linear infinite;
+        }
+
+        /* Planeta individual */
+        .planet {
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-radius: 50%;
+            cursor: pointer;
+            pointer-events: auto;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .planet:hover {
+            transform: translateX(-50%) scale(1.6);
+            box-shadow: 0 0 25px currentColor;
+            z-index: 50;
+        }
+
+        /* Tamaños de las 9 Órbitas */
+        .orbit-1 { width: 220px; height: 220px; }
+        .planet-1 { width: 24px; height: 24px; top: -12px; background: linear-gradient(45deg, #4facfe, #00f2fe); box-shadow: 0 0 10px #00f2fe; }
+
+        .orbit-2 { width: 310px; height: 310px; }
+        .planet-2 { width: 26px; height: 26px; top: -13px; background: linear-gradient(45deg, #fa709a, #fee140); box-shadow: 0 0 10px #fa709a; }
+
+        .orbit-3 { width: 400px; height: 400px; }
+        .planet-3 { width: 28px; height: 28px; top: -14px; background: linear-gradient(45deg, #a18cd1, #fbc2eb); box-shadow: 0 0 10px #fbc2eb; }
+
+        .orbit-4 { width: 490px; height: 490px; }
+        .planet-4 { width: 30px; height: 30px; top: -15px; background: linear-gradient(45deg, #43e97b, #38f9d7); box-shadow: 0 0 10px #38f9d7; }
+
+        .orbit-5 { width: 580px; height: 580px; }
+        .planet-5 { width: 32px; height: 32px; top: -16px; background: linear-gradient(45deg, #ff0844, #ffb199); box-shadow: 0 0 10px #ff0844; }
+
+        .orbit-6 { width: 670px; height: 670px; }
+        .planet-6 { width: 34px; height: 34px; top: -17px; background: linear-gradient(45deg, #f83600, #f9d423); box-shadow: 0 0 10px #f83600; }
+
+        .orbit-7 { width: 760px; height: 760px; }
+        .planet-7 { width: 36px; height: 36px; top: -18px; background: linear-gradient(45deg, #30cfd0, #330867); box-shadow: 0 0 10px #30cfd0; }
+
+        .orbit-8 { width: 850px; height: 850px; }
+        .planet-8 { width: 38px; height: 38px; top: -19px; background: linear-gradient(45deg, #accbee, #e7f0fd); box-shadow: 0 0 10px #accbee; }
+
+        .orbit-9 { width: 940px; height: 940px; }
+        .planet-9 { width: 40px; height: 40px; top: -20px; background: linear-gradient(45deg, #fbc2eb, #a18cd1); box-shadow: 0 0 10px #fbc2eb; }
+
+        @keyframes rotate {
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Modal / Mensajes con foto */
+        .modal {
+            position: fixed;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            background: rgba(15, 15, 25, 0.96);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 35px;
+            border-radius: 25px;
+            text-align: center;
+            width: 90%;
+            max-width: 480px;
+            z-index: 1000;
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 20px 45px rgba(0,0,0,0.8);
+        }
+
+        .modal.active {
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .modal-img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+        }
+
+        .modal h2 { margin-bottom: 12px; color: #fbc2eb; font-size: 1.5rem; letter-spacing: 1px; }
+        .modal p { font-size: 1.05rem; line-height: 1.6; margin-bottom: 25px; color: #f0f0f0; }
+        
+        .close-btn {
+            background: linear-gradient(45deg, #fa709a, #fee140);
+            border: none;
+            padding: 12px 32px;
+            border-radius: 25px;
+            color: #111;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .close-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(254, 225, 64, 0.4);
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.75);
+            z-index: 999;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .overlay.active { display: block; opacity: 1; }
+    </style>
+</head>
+<body>
+
+    <div id="starfield"></div>
+
+    <div class="universe" id="universe">
+        <div class="sun">Jennifer</div>
+
+        <div class="orbit orbit-1">
+            <div class="planet-container">
+                <div class="planet planet-1" data-img="1.jpeg" data-title="No dudes de ti" data-msg="Tus inseguridades a veces te hacen dudar, pero para mí eres absolutamente perfecta tal cual eres. No cambiaría nada de ti."></div>
+            </div>
+        </div>
+
+        <div class="orbit orbit-2">
+            <div class="planet-container">
+                <div class="planet planet-2" data-img="2.jpeg" data-title="Tu brillo único" data-msg="A veces te cuesta ver lo increíble que eres, pero iluminas mi vida entera. No tienes nada que demostrarle a nadie."></div>
+            </div>
+        </div>
+
+        <div class="orbit orbit-3">
+            <div class="planet-container">
+                <div class="planet planet-3" data-img="3.jpeg" data-title="Eres mi mundo" data-msg="Cada duda o pensamiento negativo guárdalo, porque estoy aquí para recordarte todos los días lo mucho que vales."></div>
+            </div>
+        </div>
+
+        <div class="orbit orbit-4">
+            <div class="planet-container">
+                <div class="planet planet-4" data-img="4.jpeg" data-title="Hermosa por dentro y fuera" data-msg="Tienes un corazón gigante y una forma de ser hermosa que hace que cada segundo a tu lado sea el mejor regalo."></div>
+            </div>
+        </div>
+
+        <div class="orbit orbit-5">
+            <div class="planet-container">
+                <div class="planet planet-5" data-img="5.jpeg" data-title="Mi lugar favorito" data-msg="No importa cómo te sientas en los días grises, para mí siempre serás la persona más especial y perfecta del universo."></div>
+            </div>
+        </div>
+
+        <div class="orbit orbit-6">
+            <div class="planet-container">
+                <div class="planet planet-6" data-img="6.jpeg" data-title="Por siempre juntos" data-msg="Cualquier inseguridad se desvanece cuando pienso en todo lo que somos y en todo el futuro maravilloso que nos espera."></div>
+            </div>
+        </div>
+
+        <div class="orbit orbit-7">
+            <div class="planet-container">
+                <div class="planet planet-7" data-img="7.jpeg" data-title="Inigualable" data-msg="No existe nadie en este mundo que se compare contigo; tu sonrisa y tu esencia son lo más puro y maravilloso que tengo."></div>
+            </div>
+        </div>
+
+        <div class="orbit orbit-8">
+            <div class="planet-container">
+                <div class="planet planet-8" data-img="8.jpeg" data-title="Mi paz infinita" data-msg="Contigo aprendí lo que es amar sin condiciones. Eres mi refugio seguro y mi calma cuando el mundo se pone difícil."></div>
+            </div>
+        </div>
+
+        <div class="orbit orbit-9">
+            <div class="planet-container">
+                <div class="planet planet-9" data-img="9.jpeg" data-title="Mi universo entero" data-msg="Si miraras a través de mis ojos, verías que eres la obra de arte más perfecta de toda la galaxia. Te amo con toda el alma."></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="overlay" id="overlay"></div>
+    <div class="modal" id="modal">
+        <img id="modal-img" class="modal-img" src="" alt="Nuestro recuerdo">
+        <h2 id="modal-title">Título</h2>
+        <p id="modal-desc">Mensaje</p>
+        <button class="close-btn" id="close-btn">Entendido ❤️</button>
+    </div>
+
+    <script>
+        // 1. Asignar movimiento completamente aleatorio a cada órbita al cargar
+        document.querySelectorAll('.planet-container').forEach(container => {
+            const randomDuration = Math.random() * 30 + 20; // Duración entre 20s y 50s
+            const randomDirection = Math.random() > 0.5 ? 'normal' : 'reverse'; // Dirección aleatoria
+            const randomDelay = -Math.random() * randomDuration; // Posición de inicio aleatoria en el círculo
+
+            container.style.animationDuration = `${randomDuration}s`;
+            container.style.animationDirection = randomDirection;
+            container.style.animationDelay = `${randomDelay}s`;
+        });
+
+        // 2. Generar campo de estrellas estáticas de fondo (350 estrellas)
+        const starfield = document.getElementById('starfield');
+        for (let i = 0; i < 350; i++) {
+            let star = document.createElement('div');
+            star.style.position = 'absolute';
+            star.style.left = `${Math.random() * 100}vw`;
+            star.style.top = `${Math.random() * 100}vh`;
+            star.style.width = `${Math.random() * 2.5}px`;
+            star.style.height = star.style.width;
+            star.style.backgroundColor = 'white';
+            star.style.borderRadius = '50%';
+            star.style.opacity = Math.random();
+            starfield.appendChild(star);
+        }
+
+        // 3. Generador automático de Estrellas Fugaces
+        function createShootingStar() {
+            const universe = document.getElementById('universe');
+            if (universe.classList.contains('paused')) return;
+
+            let shootingStar = document.createElement('div');
+            shootingStar.className = 'shooting-star';
+            shootingStar.style.top = `${Math.random() * 70}vh`;
+            shootingStar.style.left = `${Math.random() * 100}vw`;
+            document.body.appendChild(shootingStar);
+
+            setTimeout(() => {
+                shootingStar.remove();
+            }, 1500);
+        }
+
+        setInterval(createShootingStar, 2200);
+
+        // 4. Rastro mágico del ratón
+        document.addEventListener('mousemove', function(e) {
+            let trail = document.createElement('div');
+            trail.className = 'cursor-trail';
+            trail.style.left = `${e.clientX}px`;
+            trail.style.top = `${e.clientY}px`;
+            document.body.appendChild(trail);
+
+            setTimeout(() => {
+                trail.remove();
+            }, 1000);
+        });
+
+        // 5. Lógica del Modal y Pausa del Sistema Solar
+        const planets = document.querySelectorAll('.planet');
+        const modal = document.getElementById('modal');
+        const overlay = document.getElementById('overlay');
+        const universe = document.getElementById('universe');
+        const modalImg = document.getElementById('modal-img');
+        const modalTitle = document.getElementById('modal-title');
+        const modalDesc = document.getElementById('modal-desc');
+        const closeBtn = document.getElementById('close-btn');
+
+        planets.forEach(planet => {
+            planet.addEventListener('click', () => {
+                modalImg.src = planet.getAttribute('data-img');
+                modalTitle.textContent = planet.getAttribute('data-title');
+                modalDesc.textContent = planet.getAttribute('data-msg');
+                
+                modal.classList.add('active');
+                overlay.classList.add('active');
+                universe.classList.add('paused');
+            });
+        });
+
+        const closeModal = () => {
+            modal.classList.remove('active');
+            overlay.classList.remove('active');
+            universe.classList.remove('paused');
+        };
+
+        closeBtn.addEventListener('click', closeModal);
+        overlay.addEventListener('click', closeModal);
+    </script>
+</body>
+</html>
